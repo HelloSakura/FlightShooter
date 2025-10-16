@@ -1,0 +1,37 @@
+@startuml
+class Game {
+    +run()
+    +changeScene(Scene* pScene)
+    +init()
+    +clean()
+    +update()
+    +render()
+    +handleEvents(SDL_Event* pEvent)
+--
+    -m_pCurScene: Scene*
+    -m_isRunning: bool
+    -m_pWindow: SDL_Window*
+    -m_pRenderer: SDL_Renderer*
+}
+
+abstract class Scene {
+    +init()
+    +update()
+    +render()
+    +clean()
+    +handleEvents(SDL_Event* pEvent)
+}
+
+class SceneMain {
+    +init()
+    +update()
+    +render()
+    +clean()
+    +handleEvents(SDL_Event* pEvent)
+}
+
+
+Game "1" --> "1" Scene : has
+SceneMain "1" ..|> "1" Scene : extends
+
+@enduml

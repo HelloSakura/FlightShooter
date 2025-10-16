@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "SDL2-Config",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Library/SDL2/include"
+            ],
+            "cStandard": "c17",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Project/FlightShooter/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -1,0 +1,8 @@
+[
+{
+  "directory": "C:/Project/FlightShooter/build",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\clang.exe -IC:/Library/SDL2/include -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++17 -o CMakeFiles\\FlightShooter.dir\\main.cpp.obj -c C:\\Project\\FlightShooter\\main.cpp",
+  "file": "C:/Project/FlightShooter/main.cpp",
+  "output": "C:/Project/FlightShooter/build/CMakeFiles/FlightShooter.dir/main.cpp.obj"
+}
+]
