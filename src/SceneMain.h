@@ -22,6 +22,7 @@ public:
     void render() override;
     void clean() override;
     void handleEvents(SDL_Event* pEvent) override;
+    void keyboardControl();
 
 private:
     Game& m_game;

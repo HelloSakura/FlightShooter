@@ -31,15 +31,16 @@ void Game::run()
 void Game::handleEvents(SDL_Event* pEvent)
 {
     //处理退出事件
-    while(SDL_PollEvent(pEvent))
+    SDL_Event event;
+    while(SDL_PollEvent(&event))
     {
-        if(pEvent->type == SDL_QUIT)
+        if(event.type == SDL_QUIT)
         {
             m_isRunning = false;
             break;
         }
         //处理场景事件
-        m_pCurScene->handleEvents(pEvent);
+        m_pCurScene->handleEvents(&event);
     }
 }
 
@@ -146,4 +147,9 @@ int Game::getWindowWidth()
 int Game::getWindowHeight()
 {
     return sm_nWindowHeight;
+}
+
+void Game::stop()
+{
+    m_isRunning = false;
 }

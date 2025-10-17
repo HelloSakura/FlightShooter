@@ -28,6 +28,7 @@ public:
     void changeScene(Scene* pScene);  //切换场景
     void init();    //初始化游戏
     void clean();   //清理游戏
+    void stop();
     SDL_Renderer* getRenderer() const;
     SDL_Window* getWindow() const;
     bool isRunning() const;
