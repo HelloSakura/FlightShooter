@@ -8,6 +8,9 @@
 #pragma once
 
 #include "Scene.h"
+#include <SDL.h>
+#include <SDL_events.h>
+
 class Game{
 public:
     static Game& getInstance()
@@ -32,7 +35,6 @@ public:
     static int getWindowWidth();
     static int getWindowHeight();
     
-
 
 
 private:

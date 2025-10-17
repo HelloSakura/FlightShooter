@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "SDL_rect.h"
+#include <SDL_rect.h>
 #include <SDL.h>
 
 
