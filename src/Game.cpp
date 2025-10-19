@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "SDL_log.h"
 #include <SDL.h>
+#include <SDL_stdinc.h>
 #include "SceneMain.h"
 #include "SDL_image.h"
 
@@ -19,12 +20,29 @@ Game::~Game()
 
 void Game::run()
 {
+    //主循环
     while(m_isRunning)
     {
         SDL_Event event;
         handleEvents(&event);
-        update();
+        update(m_fDeltaTime);
         render();
+
+        
+        Uint32 frameStart = SDL_GetTicks();
+        m_pCurScene->handleEvents(&event);
+        Uint32 frameEnd = SDL_GetTicks();
+        
+        Uint32 diff = frameEnd - frameStart;
+        //等待差值时间，保证帧率
+        if(diff < m_nFrameTime){
+            SDL_Delay(m_nFrameTime - diff);
+            m_fDeltaTime = static_cast<float>(m_nFrameTime - diff) / 1000.0f;
+        }
+        else{
+            //没有进行等待，低于设定帧率
+            m_fDeltaTime = static_cast<float>(diff) / 1000.0f;
+        }
     }
 }
 
@@ -38,16 +56,14 @@ void Game::handleEvents(SDL_Event* pEvent)
         {
             m_isRunning = false;
             break;
-        }
-        //处理场景事件
-        m_pCurScene->handleEvents(&event);
+        }   
     }
 }
 
 
-void Game::update()
+void Game::update(float deltaTime)
 {
-    m_pCurScene->update();
+    m_pCurScene->update(deltaTime);
 }
 
 
@@ -75,6 +91,7 @@ void Game::changeScene(Scene* pScene)
 
 void Game::init()
 {
+    m_nFrameTime  = 1000 / m_nFPS;
     //SDL初始化
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,"SDL_Init Error: %s", SDL_GetError());

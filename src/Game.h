@@ -22,7 +22,7 @@ public:
     ~Game();
 
     void run();     //游戏主循环
-    void update();  //更新游戏
+    void update(float deltaTime);  //更新游戏
     void render();  //渲染游戏
     void handleEvents(SDL_Event* pEvent);  //处理事件
     void changeScene(Scene* pScene);  //切换场景
@@ -48,6 +48,10 @@ private:
     Scene* m_pCurScene = nullptr;
     SDL_Window* m_pWindow = nullptr;
     SDL_Renderer* m_pRenderer = nullptr;
+    int m_nFPS = 60;
+    Uint32 m_nFrameTime;
+    float m_fDeltaTime = 0.0f;
+    
 
 private:
     static int sm_nWindowWidth;
