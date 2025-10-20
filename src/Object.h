@@ -28,3 +28,11 @@
    int m_nHeight = 0;
    float m_fSpeed = 400.0f;
  };
+
+ struct Enemy{
+    SDL_Texture* m_pTexture = nullptr;
+    SDL_FPoint m_fPosition = {0, 0};
+    int m_nWidth = 0;
+    int m_nHeight = 0;
+    float m_fSpeed = 100.0f;
+ };
