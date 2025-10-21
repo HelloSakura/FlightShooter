@@ -51,6 +51,19 @@ void SceneMain::init()
     SDL_QueryTexture(m_enemyTemplate.m_pTexture, nullptr, nullptr, &m_enemyTemplate.m_nWidth, &m_enemyTemplate.m_nHeight);
     m_enemyTemplate.m_nWidth /= 4;
     m_enemyTemplate.m_nHeight /= 4;
+
+    //初始化敌人子弹模板
+    m_enemyBulletTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "../../assets/image/laser-2.png");
+    if(m_enemyBulletTemplate.m_pTexture == nullptr)
+    {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", IMG_GetError());
+        m_game.stop();
+        return;
+    }
+    SDL_QueryTexture(m_enemyBulletTemplate.m_pTexture, nullptr, nullptr, &m_enemyBulletTemplate.m_nWidth, &m_enemyBulletTemplate.m_nHeight);
+    m_enemyBulletTemplate.m_nWidth /= 4;
+    m_enemyBulletTemplate.m_nHeight /= 4;
+
     //初始化随机数
     std::random_device rd;
     m_randomEngine = std::mt19937(rd());
@@ -67,13 +80,13 @@ void SceneMain::update(float deltaTime)
 
 void SceneMain::updatePlayerBullets(float deltaTime)
 {
-    for(auto it = m_pPlayerBullets.begin(); it != m_pPlayerBullets.end();){
+    for(auto it = m_playerBullets.begin(); it != m_playerBullets.end();){
         PlayerBullet* pBullet = *it;
         pBullet->m_fPosition.y -= pBullet->m_fSpeed * deltaTime;
         //检查子弹是否超出屏幕
         if(pBullet->m_fPosition.y < static_cast<float>(-pBullet->m_nHeight)){
             delete pBullet;
-            it = m_pPlayerBullets.erase(it);
+            it = m_playerBullets.erase(it);
             SDL_Log("Player Bullet deleted");
         }
         else{
@@ -96,20 +109,26 @@ void SceneMain::spawnEnemy(float deltaTime)
     pEnemy->m_fPosition.x = static_cast<float>(m_randomDistribution(m_randomEngine) * (static_cast<float>(m_game.getWindowWidth()) - static_cast<float>(pEnemy->m_nWidth)));
     pEnemy->m_fPosition.y = -static_cast<float>(pEnemy->m_nHeight);
     //添加到敌人列表
-    m_pEnemies.push_back(pEnemy); 
+    m_enemies.push_back(pEnemy); 
 }
 
 void SceneMain::updateEnemies(float deltaTime)
 {
-    for(auto it = m_pEnemies.begin(); it != m_pEnemies.end();){
+    auto currentTime = SDL_GetTicks();
+    for(auto it = m_enemies.begin(); it != m_enemies.end();){
         Enemy* pEnemy = *it;
         pEnemy->m_fPosition.y += pEnemy->m_fSpeed * deltaTime;
         //检查敌人是否超出屏幕
         if(pEnemy->m_fPosition.y > static_cast<float>(m_game.getWindowHeight())){
             delete pEnemy;
-            it = m_pEnemies.erase(it);
+            it = m_enemies.erase(it);
         }
         else{
+            //判断是否发射子弹
+            if(pEnemy->m_nLastShootTime + pEnemy->m_nCoolDown < currentTime){
+                //发射子弹
+                
+            }
             ++it;
         }
     }
@@ -129,7 +148,7 @@ void SceneMain::render()
 
 void SceneMain::renderPlayerProjectiles()
 {
-    for(auto it = m_pPlayerBullets.begin(); it != m_pPlayerBullets.end(); ++it){
+    for(auto it = m_playerBullets.begin(); it != m_playerBullets.end(); ++it){
         PlayerBullet* pBullet = *it;
         SDL_Rect rect = {static_cast<int>(pBullet->m_fPosition.x), static_cast<int>(pBullet->m_fPosition.y), pBullet->m_nWidth, pBullet->m_nHeight};
         SDL_RenderCopy(m_game.getRenderer(), pBullet->m_pTexture, nullptr, &rect);
@@ -138,7 +157,7 @@ void SceneMain::renderPlayerProjectiles()
 
 void SceneMain::renderEnemies()
 {
-    for(auto it = m_pEnemies.begin(); it != m_pEnemies.end(); ++it){
+    for(auto it = m_enemies.begin(); it != m_enemies.end(); ++it){
         Enemy* pEnemy = *it;
         SDL_Rect rect = {static_cast<int>(pEnemy->m_fPosition.x), static_cast<int>(pEnemy->m_fPosition.y), pEnemy->m_nWidth, pEnemy->m_nHeight};
         SDL_RenderCopy(m_game.getRenderer(), pEnemy->m_pTexture, nullptr, &rect);
@@ -155,24 +174,34 @@ void SceneMain::clean()
 
 
     //清理子弹
-    for(auto it = m_pPlayerBullets.begin(); it != m_pPlayerBullets.end(); ++it){
+    for(auto it = m_playerBullets.begin(); it != m_playerBullets.end(); ++it){
         if(*it != nullptr)
         {
             delete *it;
             *it = nullptr;
         }
     }
-    m_pPlayerBullets.clear();
+    m_playerBullets.clear();
     
     //清理敌人
-    for(auto it = m_pEnemies.begin(); it != m_pEnemies.end(); ++it){
+    for(auto it = m_enemies.begin(); it != m_enemies.end(); ++it){
         if(*it != nullptr)
         {
             delete *it;
             *it = nullptr;
         }
     }
-    m_pEnemies.clear();
+    m_enemies.clear();
+
+    //清理敌人子弹
+    for(auto it = m_enemyBullets.begin(); it != m_enemyBullets.end(); ++it){
+        if(*it != nullptr)
+        {
+            delete *it;
+            *it = nullptr;
+        }
+    }
+    m_enemyBullets.clear();
     
     //清理玩家
     if(m_player.m_pTexture != nullptr)
@@ -252,5 +281,5 @@ void SceneMain::shootPlayerBullet()
     pBullet->m_fPosition.x = m_player.m_fPosition.x + m_player.m_nWidth / 2.0f - pBullet->m_nWidth / 2.0f;
     pBullet->m_fPosition.y = m_player.m_fPosition.y;
     //添加到子弹列表
-    m_pPlayerBullets.push_back(pBullet);
+    m_playerBullets.push_back(pBullet);
 }

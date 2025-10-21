@@ -38,9 +38,11 @@ private:
     //创建每个物体的模板，避免频繁读取文件
     PlayerBullet m_playerBulletTemplate;
     Enemy m_enemyTemplate;
+    EnemyBullet m_enemyBulletTemplate;
     
-    std::list<PlayerBullet*> m_pPlayerBullets;   //子弹列表，使用指针避免栈上内存过多
-    std::list<Enemy*> m_pEnemies;   //敌人列表，使用指针避免栈上内存过多
+    std::list<PlayerBullet*> m_playerBullets;   //子弹列表，使用指针避免栈上内存过多
+    std::list<Enemy*> m_enemies;   //敌人列表，使用指针避免栈上内存过多
+    std::list<EnemyBullet*> m_enemyBullets;   //敌人子弹列表，使用指针避免栈上内存过多s
 
     std::mt19937 m_randomEngine;
     std::uniform_real_distribution<float> m_randomDistribution;
