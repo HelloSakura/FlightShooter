@@ -29,9 +29,14 @@ public:
     void updatePlayerBullets(float deltaTime);
     void spawnEnemy(float deltaTime);
     void updateEnemies(float deltaTime);
+    void updateEnemyBullets(float deltaTime);
 
     void renderPlayerProjectiles();
     void renderEnemies();
+    void renderEnemyBullets();
+    
+    void enemyShoot(Enemy* pEnemy);
+    SDL_FPoint getDirection(Enemy *pEnemy);
 private:
     Game& m_game;
     Player m_player;

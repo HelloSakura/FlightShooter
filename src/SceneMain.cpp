@@ -76,6 +76,7 @@ void SceneMain::update(float deltaTime)
     updatePlayerBullets(deltaTime);
     spawnEnemy(deltaTime);
     updateEnemies(deltaTime);
+    updateEnemyBullets(deltaTime);
 }
 
 void SceneMain::updatePlayerBullets(float deltaTime)
@@ -87,12 +88,33 @@ void SceneMain::updatePlayerBullets(float deltaTime)
         if(pBullet->m_fPosition.y < static_cast<float>(-pBullet->m_nHeight)){
             delete pBullet;
             it = m_playerBullets.erase(it);
-            SDL_Log("Player Bullet deleted");
+            //SDL_Log("Player Bullet deleted");
         }
         else{
             ++it;
         }
 
+    }
+}
+
+void SceneMain::updateEnemyBullets(float deltaTime)
+{
+    auto margin = 32.0f;
+    for(auto it = m_enemyBullets.begin(); it != m_enemyBullets.end();){
+        EnemyBullet* pBullet = *it;
+        //检查子弹是否超出屏幕，四个方向都判断
+        pBullet->m_fPosition.y += pBullet->m_fSpeed * deltaTime * pBullet->m_fDirection.y;
+        pBullet->m_fPosition.x += pBullet->m_fSpeed * deltaTime * pBullet->m_fDirection.x;
+        if(pBullet->m_fPosition.y > static_cast<float>(m_game.getWindowHeight()) + margin
+        || pBullet->m_fPosition.y < -margin
+        || pBullet->m_fPosition.x > static_cast<float>(m_game.getWindowWidth()) + margin
+        || pBullet->m_fPosition.x < -margin){
+            delete pBullet;
+            it = m_enemyBullets.erase(it);
+        }
+        else{
+            ++it;
+        }
     }
 }
 
@@ -127,11 +149,33 @@ void SceneMain::updateEnemies(float deltaTime)
             //判断是否发射子弹
             if(pEnemy->m_nLastShootTime + pEnemy->m_nCoolDown < currentTime){
                 //发射子弹
-                
+                enemyShoot(pEnemy);
+                pEnemy->m_nLastShootTime = currentTime;
             }
             ++it;
         }
     }
+}
+
+void SceneMain::enemyShoot(Enemy* pEnemy)
+{
+    //使用模板创建子弹
+    EnemyBullet* pBullet = new EnemyBullet(m_enemyBulletTemplate);
+    //创建子弹位置
+    pBullet->m_fPosition.x = pEnemy->m_fPosition.x + pEnemy->m_nWidth / 2.0f - pBullet->m_nWidth / 2.0f;
+    pBullet->m_fPosition.y = pEnemy->m_fPosition.y + pEnemy->m_nHeight/2.0f - pBullet->m_nHeight/2.0f;
+    //设置子弹方向
+    pBullet->m_fDirection = getDirection(pEnemy);
+    //添加到子弹列表
+    m_enemyBullets.push_back(pBullet);
+}
+
+SDL_FPoint SceneMain::getDirection(Enemy *pEnemy)
+{
+    auto x = (m_player.m_fPosition.x + m_player.m_nWidth/2.0f) - (pEnemy->m_fPosition.x + pEnemy->m_nWidth/2.0f);
+    auto y = (m_player.m_fPosition.y + m_player.m_nHeight/2.0f) - (pEnemy->m_fPosition.y + pEnemy->m_nHeight/2.0f);
+    auto length = sqrtf(x * x + y * y); 
+    return {x / length, y / length};
 }
 
 void SceneMain::render()
@@ -143,7 +187,8 @@ void SceneMain::render()
     SDL_RenderCopy(m_game.getRenderer(), m_player.m_pTexture, nullptr, &rect);
     //渲染敌人
     renderEnemies();
-    
+    //渲染敌人子弹
+    renderEnemyBullets();
 }
 
 void SceneMain::renderPlayerProjectiles()
@@ -163,6 +208,18 @@ void SceneMain::renderEnemies()
         SDL_RenderCopy(m_game.getRenderer(), pEnemy->m_pTexture, nullptr, &rect);
     }
 }
+
+void SceneMain::renderEnemyBullets()
+{
+    for(auto it = m_enemyBullets.begin(); it != m_enemyBullets.end(); ++it){
+        EnemyBullet* pBullet = *it;
+        SDL_Rect rect = {static_cast<int>(pBullet->m_fPosition.x), static_cast<int>(pBullet->m_fPosition.y), pBullet->m_nWidth, pBullet->m_nHeight};
+        //旋转子弹
+        float angle = atan2f(pBullet->m_fDirection.y, pBullet->m_fDirection.x) * 180.0f / M_PI - 90.0f;
+        SDL_RenderCopyEx(m_game.getRenderer(), pBullet->m_pTexture, nullptr, &rect, angle, nullptr, SDL_FLIP_NONE); 
+    }
+}
+
 void SceneMain::clean()
 {
     //清理模板
