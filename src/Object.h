@@ -9,6 +9,7 @@
 
 #include <SDL_rect.h>
 #include <SDL.h>
+#include <SDL_stdinc.h>
 
 
  struct Player{
@@ -16,9 +17,10 @@
     SDL_FPoint m_fPosition = {0, 0};
     int m_nWidth = 0;
     int m_nHeight = 0;
-    float m_fSpeed = 200.0f;
-    Uint32 m_nCoolDown = 500;      //SDL指定的时间读取类型为Uint32
+    float m_fSpeed = 400.0f;
+    Uint32 m_nCoolDown = 200;      //SDL指定的时间读取类型为Uint32
     Uint32 m_nLastShootTime = 0;
+    int m_nCurrentHealth = 10000;
  };
 
  struct PlayerBullet{
@@ -26,7 +28,8 @@
    SDL_FPoint m_fPosition = {0, 0};
    int m_nWidth = 0;
    int m_nHeight = 0;
-   float m_fSpeed = 400.0f;
+   float m_fSpeed = 600.0f;
+   int m_nDamage = 1;
  };
 
  struct Enemy{
@@ -34,9 +37,10 @@
     SDL_FPoint m_fPosition = {0, 0};
     int m_nWidth = 0;
     int m_nHeight = 0;
-    float m_fSpeed = 100.0f;
-    Uint32 m_nCoolDown = 1000;      //SDL指定的时间读取类型为Uint32
+    float m_fSpeed = 50.0f;
+    Uint32 m_nCoolDown = 4000;      //SDL指定的时间读取类型为Uint32
     Uint32 m_nLastShootTime = 0;
+    int m_nCurrentHealth = 2;
  };
 
  struct EnemyBullet{
@@ -46,4 +50,34 @@
     int m_nWidth = 0;
     int m_nHeight = 0;
     float m_fSpeed = 400.0f;
+    int m_nDamage = 1;
+ };
+
+ struct Explosion{
+   SDL_Texture* m_pTexture = nullptr;
+   SDL_FPoint m_fPosition = {0, 0};
+   int m_nWidth = 0;
+   int m_nHeight = 0;
+   int m_nCurFrame = 0;
+   int m_nTotalFrame = 0;
+   Uint32 m_nStartTime = 0;
+   Uint32 m_nFPS = 10;
+ };
+
+
+ enum ItemType{
+   HEALTH,
+   SHIELD,
+   TIME
+ };
+
+ struct Item{
+   SDL_Texture* m_pTexture = nullptr;
+   SDL_FPoint m_fPosition = {0, 0};
+   SDL_FPoint m_fDirection = {0, 0};
+   int m_nWidth = 0;
+   int m_nHeight = 0;
+   ItemType m_eType = HEALTH;
+   float m_fSpeed = 100.0f;
+   int m_nBounceCount = 3;  //反弹次数
  };
