@@ -278,10 +278,10 @@ void SceneMain::updateItems(float deltaTime)
             playerPickItem(pItem);
             delete pItem;
             it = m_items.erase(it);
-            continue;
         }
-
-        ++it;
+        else{
+            ++it;
+        }
     }
 }
 
