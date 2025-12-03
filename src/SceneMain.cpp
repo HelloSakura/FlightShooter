@@ -100,11 +100,29 @@ void SceneMain::init() {
                    &m_itemTemplate.m_nWidth, &m_itemTemplate.m_nHeight);
   m_itemTemplate.m_nWidth /= 4;
   m_itemTemplate.m_nHeight /= 4;
+  m_itemTemplate.m_eType = HEALTH;
 
   // 初始化随机数
   std::random_device rd;
   m_randomEngine = std::mt19937(rd());
   m_randomDistribution = std::uniform_real_distribution<float>(0.0f, 1.0f);
+
+  // 初始化背景音乐
+  m_pBgm = Mix_LoadMUS("../../assets/music/03_Racing_Through_Asteroids_Loop.ogg");
+  if(m_pBgm == nullptr){
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load music: %s", Mix_GetError());
+    m_game.stop();
+    return;
+  }
+  // 播放背景音乐
+  Mix_PlayMusic(m_pBgm, -1);
+
+  // 初始化音效
+  m_soundEffects["player_shoot"] = Mix_LoadWAV("../../assets/sound/laser_shoot4.wav");
+  m_soundEffects["enemy_shoot"] = Mix_LoadWAV("../../assets/sound/xs_laser.wav");
+  m_soundEffects["enemy_hit"] = Mix_LoadWAV("../../assets/sound/explosion3.wav");
+  m_soundEffects["player_hit"] = Mix_LoadWAV("../../assets/sound/explosion1.wav");
+  m_soundEffects["item_pick"] = Mix_LoadWAV("../../assets/sound/eff5.wav");
 }
 
 void SceneMain::update(float deltaTime) {
@@ -147,8 +165,38 @@ void SceneMain::updatePlayer(float deltaTime) {
                           enemy->m_nWidth, enemy->m_nHeight};
     if (SDL_HasIntersection(&playerRect, &enemyRect)) {
       enemy->m_nCurrentHealth = 0;
-      m_player.m_nCurrentHealth -= 1;
+      if(m_player.m_nShieldHealth > 0) {
+        m_player.m_nShieldHealth -= 1;
+        SDL_Log("玩家护盾减少1，当前护盾值：%d", m_player.m_nShieldHealth);
+      }
+      else {
+        m_player.m_nCurrentHealth -= 1;
+        SDL_Log("玩家受到伤害，当前生命值：%d", m_player.m_nCurrentHealth);
+      }
     }
+  }
+
+  m_player.m_nSpeedUpBuffTime -= deltaTime;
+  m_player.m_nBulletSpeedUpBuffTime -= deltaTime;
+  
+  if(m_player.m_nSpeedUpBuffTime > 0) {
+    m_player.m_fSpeed = 1000.0f;
+  }
+  else {
+    m_player.m_fSpeed = 400.0f;
+  }
+
+  if(m_player.m_nBulletSpeedUpBuffTime > 0) {
+    for(auto it = m_playerBullets.begin(); it != m_playerBullets.end(); ++it) {
+      PlayerBullet *pBullet = *it;
+      pBullet->m_fSpeed = 1500.0f;
+    }
+  }
+  else {
+    for(auto it = m_playerBullets.begin(); it != m_playerBullets.end(); ++it) {
+      PlayerBullet *pBullet = *it;
+      pBullet->m_fSpeed = 600.0f;
+    } 
   }
 }
 
@@ -279,7 +327,7 @@ void SceneMain::updateItems(float deltaTime)
             delete pItem;
             it = m_items.erase(it);
         }
-        else{
+        else {
             ++it;
         }
     }
@@ -325,6 +373,8 @@ void SceneMain::updateEnemies(float deltaTime) {
       if (pEnemy->m_nCurrentHealth <= 0) {
         explodeEnemy(pEnemy);
         it = m_enemies.erase(it);
+        // 播放音效
+        Mix_PlayChannel(3, m_soundEffects["enemy_hit"], 0);
       } else {
         ++it;
       }
@@ -380,11 +430,13 @@ void SceneMain::enemyShoot(Enemy *pEnemy) {
   pBullet->m_fDirection = getDirection(pEnemy);
   // 添加到子弹列表
   m_enemyBullets.push_back(pBullet);
+  // 播放音效
+  Mix_PlayChannel(1, m_soundEffects["enemy_shoot"], 0);
 }
 
 void SceneMain::dropItem(Enemy *pEnemy) {
     // 使用模板创建道具
-    ItemType itemType = static_cast<ItemType>(m_randomDistribution(m_randomEngine) * 3);
+    ItemType itemType = static_cast<ItemType>(m_randomDistribution(m_randomEngine) * 4);
     Item *pItem = new Item(m_itemTemplate);
     pItem->m_eType = itemType;
     // 创建道具位置
@@ -565,6 +617,22 @@ void SceneMain::clean() {
     SDL_DestroyTexture(m_player.m_pTexture);
     m_player.m_pTexture = nullptr;
   }
+
+  //清理音乐
+  if(m_pBgm != nullptr){
+    Mix_HaltMusic();
+    Mix_FreeMusic(m_pBgm);
+    m_pBgm = nullptr;
+  }
+
+  //清理音效
+  for(auto it = m_soundEffects.begin(); it != m_soundEffects.end(); ++it){
+    if(it->second != nullptr){
+      Mix_FreeChunk(it->second);
+      it->second = nullptr;
+    }
+  }
+  m_soundEffects.clear();
 }
 
 void SceneMain::handleEvents(SDL_Event *pEvent) {}
@@ -633,6 +701,8 @@ void SceneMain::shootPlayerBullet() {
   pBullet->m_fPosition.y = m_player.m_fPosition.y;
   // 添加到子弹列表
   m_playerBullets.push_back(pBullet);
+  // 播放音效
+  Mix_PlayChannel(0, m_soundEffects["player_shoot"], 0);
 }
 
 void SceneMain::playerPickItem(Item* pItem) {
@@ -642,10 +712,22 @@ void SceneMain::playerPickItem(Item* pItem) {
             SDL_Log("玩家拾取了生命值道具，当前生命值：%d", m_player.m_nCurrentHealth);
             break;
         case SHIELD:
-            
+            m_player.m_nShieldHealth += 5;
+            SDL_Log("玩家拾取了护盾道具，当前护盾值：%d", static_cast<int>(m_player.m_nShieldHealth));
             break;
-        case TIME:
-            
+        case SPEED_UP:
+            m_player.m_nSpeedUpBuffTime = 1000;
+            SDL_Log("玩家拾取了速度道具，当前速度：%f", m_player.m_fSpeed);
+            break;
+        case BULLET_SPEED_UP:
+            m_player.m_nBulletSpeedUpBuffTime = 1000;
+            SDL_Log("玩家拾取了子弹速度道具");
+            break;
+        default:
+            SDL_Log("玩家拾取了未知道具，类型：%d", static_cast<int>(pItem->m_eType));
             break;
     }
+
+    // 播放音效
+    Mix_PlayChannel(4, m_soundEffects["item_pick"], 0);
 }

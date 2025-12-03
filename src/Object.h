@@ -21,6 +21,9 @@
     Uint32 m_nCoolDown = 200;      //SDL指定的时间读取类型为Uint32
     Uint32 m_nLastShootTime = 0;
     int m_nCurrentHealth = 10000;
+    Uint32 m_nSpeedUpBuffTime = 0;
+    Uint32 m_nBulletSpeedUpBuffTime = 0;
+    Uint32 m_nShieldHealth = 0;
  };
 
  struct PlayerBullet{
@@ -68,7 +71,8 @@
  enum ItemType{
    HEALTH,
    SHIELD,
-   TIME
+   SPEED_UP,
+   BULLET_SPEED_UP,
  };
 
  struct Item{

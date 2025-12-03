@@ -1,5 +1,6 @@
 # 最小版本
 cmake_minimum_required(VERSION 3.10.0)
+
 # 项目名称 版本号 语言
 project(FlightShooter VERSION 0.1.0 LANGUAGES C CXX)
 
@@ -16,6 +17,8 @@ project(FlightShooter VERSION 0.1.0 LANGUAGES C CXX)
 # endif()
 
 # 查找并载入CMake预设
+# 注意：SDL2 系列库的配置文件使用了旧的 cmake_minimum_required 语法
+# 如果看到弃用警告，可以运行 fix_sdl2_configs.bat 来修复这些文件
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_mixer REQUIRED)

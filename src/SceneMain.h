@@ -11,6 +11,8 @@
 #include "Object.h"
 #include <list>
 #include <random>
+#include <SDL_mixer.h>
+#include <map>
 
 class Game;
 
@@ -54,6 +56,8 @@ private:
     EnemyBullet m_enemyBulletTemplate;
     Explosion m_explosionTemplate;
     Item m_itemTemplate;
+    Mix_Music* m_pBgm = nullptr;   //背景音乐
+    std::map<std::string, Mix_Chunk*> m_soundEffects;   //音效列表
 
     std::list<PlayerBullet*> m_playerBullets;   //子弹列表，使用指针避免栈上内存过多
     std::list<Enemy*> m_enemies;   //敌人列表，使用指针避免栈上内存过多

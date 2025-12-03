@@ -1,9 +1,11 @@
 #include "Game.h"
-#include "SDL_log.h"
+#include "SDL_log.h" 
 #include <SDL.h>
 #include <SDL_stdinc.h>
 #include "SceneMain.h"
 #include "SDL_image.h"
+#include <SDL_ttf.h>
+#include <SDL_mixer.h>
 
 int Game::sm_nWindowWidth = 600;
 int Game::sm_nWindowHeight = 800;
@@ -122,6 +124,26 @@ void Game::init()
         return;
     }
 
+    //初始化音乐
+    if(Mix_Init(MIX_INIT_MP3|MIX_INIT_OGG) != (MIX_INIT_MP3|MIX_INIT_OGG)){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"Mix_Init Error: %s", Mix_GetError());
+        m_isRunning = false;
+        return;
+    }   
+
+    //打开音频设备
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"Mix_OpenAudio Error: %s", Mix_GetError());
+        m_isRunning = false;
+        return;
+    }
+
+    //设置通道
+    Mix_AllocateChannels(32);
+    //设置音量
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+    Mix_Volume(-1, MIX_MAX_VOLUME / 8);
+
     //切换场景
    changeScene(new SceneMain());
 }
@@ -134,9 +156,14 @@ void Game::clean()
         delete m_pCurScene;
     }
 
+    IMG_Quit();
+
+    Mix_CloseAudio();
+    Mix_Quit();
+
     SDL_DestroyRenderer(m_pRenderer);
     SDL_DestroyWindow(m_pWindow);
-    IMG_Quit();
+    
     SDL_Quit();
 }
 
