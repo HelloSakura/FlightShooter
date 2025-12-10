@@ -7,9 +7,11 @@
 
 #pragma once
 
+#include "Object.h"
 #include "Scene.h"
 #include <SDL.h>
 #include <SDL_events.h>
+#include "SDL_image.h"
 
 class Game{
 public:
@@ -23,7 +25,9 @@ public:
 
     void run();     //游戏主循环
     void update(float deltaTime);  //更新游戏
+    void updateBackground(float deltaTime);  //更新背景卷轴
     void render();  //渲染游戏
+    void renderBackground();  //渲染星空背景
     void handleEvents(SDL_Event* pEvent);  //处理事件
     void changeScene(Scene* pScene);  //切换场景
     void init();    //初始化游戏
@@ -51,7 +55,10 @@ private:
     int m_nFPS = 60;
     Uint32 m_nFrameTime;
     float m_fDeltaTime = 0.0f;
-    
+
+    Background m_nearStars;
+    Background m_farStars;
+
 
 private:
     static int sm_nWindowWidth;

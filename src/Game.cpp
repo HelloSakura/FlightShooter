@@ -65,20 +65,49 @@ void Game::handleEvents(SDL_Event* pEvent)
 
 void Game::update(float deltaTime)
 {
+    updateBackground(deltaTime);
     m_pCurScene->update(deltaTime);
 }
 
+void Game::updateBackground(float deltaTime)
+{
+    m_nearStars.m_fOffset += m_nearStars.m_fSpeed * deltaTime;
+    if(m_nearStars.m_fOffset >= 0){
+        m_nearStars.m_fOffset -= m_nearStars.m_nWidth;
+    }
+
+    m_farStars.m_fOffset += m_farStars.m_fSpeed * deltaTime;
+    if(m_farStars.m_fOffset >= 0){
+        m_farStars.m_fOffset -= m_farStars.m_nWidth;
+    }
+   
+}
 
 void Game::render()
 {
     //清空渲染场景
     SDL_RenderClear(m_pRenderer);
+    //渲染星空背景
+    renderBackground();
     //绘制场景内容
     m_pCurScene->render();
     //更新渲染场景
     SDL_RenderPresent(m_pRenderer);
 }
 
+
+void Game::renderBackground()
+{
+    //根据offset获取Y坐标
+    int posY = static_cast<int>(m_nearStars.m_fOffset);
+    for(; posY < sm_nWindowHeight; posY += m_nearStars.m_nHeight){
+        for(int posX = 0; posX < sm_nWindowWidth; posX += m_nearStars.m_nWidth){
+            SDL_Rect dstRect = {posX, posY, m_nearStars.m_nWidth, m_nearStars.m_nHeight};
+            SDL_RenderCopy(m_pRenderer, m_nearStars.m_pTexture, nullptr, &dstRect);
+        }
+    }
+
+}
 
 void Game::changeScene(Scene* pScene)
 {
@@ -144,16 +173,43 @@ void Game::init()
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
     Mix_Volume(-1, MIX_MAX_VOLUME / 8);
 
+    //初始化背景卷轴
+    m_nearStars.m_pTexture = IMG_LoadTexture(m_pRenderer, "../../assets/image/StarsA.png");
+    if(m_nearStars.m_pTexture == nullptr){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"IMG_LoadTexture Error: %s", IMG_GetError());
+        m_isRunning = false;
+        return;
+    }
+    SDL_QueryTexture(m_nearStars.m_pTexture, nullptr, nullptr, &m_nearStars.m_nWidth, &m_nearStars.m_nHeight);
+    SDL_Log("m_nearStars.m_nWidth: %d, m_nearStars.m_nHeight: %d", m_nearStars.m_nWidth, m_nearStars.m_nHeight);
+
+    m_farStars.m_pTexture = IMG_LoadTexture(m_pRenderer, "../../assets/image/StarsB.png");
+    if(m_farStars.m_pTexture == nullptr){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"IMG_LoadTexture Error: %s", IMG_GetError());
+        m_isRunning = false;
+        return;
+    }
+    SDL_QueryTexture(m_farStars.m_pTexture, nullptr, nullptr, &m_farStars.m_nWidth, &m_farStars.m_nHeight);
+    SDL_Log("m_farStars.m_nWidth: %d, m_farStars.m_nHeight: %d", m_farStars.m_nWidth, m_farStars.m_nHeight);
+    m_farStars.m_fSpeed = 20.0f;
+
     //切换场景
-   changeScene(new SceneMain());
+    changeScene(new SceneMain());
 }
 
 void Game::clean()
 {
-    if(m_pCurScene != nullptr)
-    {
+    if(m_pCurScene != nullptr){
         m_pCurScene->clean();
         delete m_pCurScene;
+    }
+
+    if(m_nearStars.m_pTexture != nullptr){
+        SDL_DestroyTexture(m_nearStars.m_pTexture);
+    }
+
+    if(m_farStars.m_pTexture != nullptr){
+        SDL_DestroyTexture(m_farStars.m_pTexture);
     }
 
     IMG_Quit();

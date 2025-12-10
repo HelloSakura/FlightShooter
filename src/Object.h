@@ -85,3 +85,13 @@
    float m_fSpeed = 100.0f;
    int m_nBounceCount = 3;  //反弹次数
  };
+
+
+struct Background{
+  SDL_Texture* m_pTexture = nullptr;
+  SDL_FPoint m_fPosition = {0, 0};
+  float m_fOffset = 0.0f;
+  int m_nWidth = 0;
+  int m_nHeight = 0;
+  float m_fSpeed = 30.0f;
+};
