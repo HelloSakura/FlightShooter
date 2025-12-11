@@ -25,14 +25,14 @@ find_package(SDL2_mixer REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 
 # 指定C++标准
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 设置编译选项
 if(MSVC)
-    add_compile_options(/W4)
+    add_compile_options(/W4 /std:c++20)
 else()
-    add_compile_options(-Wall -Wextra)
+    add_compile_options(-Wall -Wextra -std=c++20)
 endif()
 
 #设置编译输出路径
@@ -47,7 +47,9 @@ set(TARGET ${PROJECT_NAME}-${CMAKE_SYSTEM_NAME})
 add_executable(${TARGET} 
             "src/main.cpp"
             "src/Game.cpp"
-            "src/SceneMain.cpp")
+            "src/Scene.cpp"
+            "src/SceneMain.cpp"
+            "src/SceneTitle.cpp")
 
 # 指定需要链接的库
 # target_link_libraries(FlightShooter SDL2 SDL2main)

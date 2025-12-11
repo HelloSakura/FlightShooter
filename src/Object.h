@@ -20,7 +20,8 @@
     float m_fSpeed = 400.0f;
     Uint32 m_nCoolDown = 200;      //SDL指定的时间读取类型为Uint32
     Uint32 m_nLastShootTime = 0;
-    int m_nCurrentHealth = 10000;
+    int m_nCurrentHealth = 10;
+    const static int m_nMaxHealth = 10;
     Uint32 m_nSpeedUpBuffTime = 0;
     Uint32 m_nBulletSpeedUpBuffTime = 0;
     Uint32 m_nShieldHealth = 0;

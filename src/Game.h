@@ -11,7 +11,9 @@
 #include "Scene.h"
 #include <SDL.h>
 #include <SDL_events.h>
-#include "SDL_image.h"
+#include <SDL_image.h>
+#include<SDL_ttf.h>
+#include <string>
 
 class Game{
 public:
@@ -37,6 +39,10 @@ public:
     SDL_Window* getWindow() const;
     bool isRunning() const;
 
+    //渲染工具函数
+    void renderText(const std::string& text, float posY, bool isTitle);
+
+
     static int getWindowWidth();
     static int getWindowHeight();
     
@@ -58,7 +64,8 @@ private:
 
     Background m_nearStars;
     Background m_farStars;
-
+    TTF_Font* m_pTitleFont = nullptr;
+    TTF_Font* m_pTextFont = nullptr;
 
 private:
     static int sm_nWindowWidth;

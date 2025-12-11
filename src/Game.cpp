@@ -2,10 +2,11 @@
 #include "SDL_log.h" 
 #include <SDL.h>
 #include <SDL_stdinc.h>
-#include "SceneMain.h"
 #include "SDL_image.h"
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
+#include "SceneMain.h"
+#include "SceneTitle.h"
 
 int Game::sm_nWindowWidth = 600;
 int Game::sm_nWindowHeight = 800;
@@ -25,16 +26,22 @@ void Game::run()
     //主循环
     while(m_isRunning)
     {
+        Uint32 frameStart = SDL_GetTicks();
+        
+        // 处理所有事件
         SDL_Event event;
-        handleEvents(&event);
+        while(SDL_PollEvent(&event))
+        {
+            // 先处理全局事件（如退出）
+            handleEvents(&event);
+            // 然后处理场景特定事件
+            m_pCurScene->handleEvents(&event);
+        }
+        
         update(m_fDeltaTime);
         render();
-
         
-        Uint32 frameStart = SDL_GetTicks();
-        m_pCurScene->handleEvents(&event);
         Uint32 frameEnd = SDL_GetTicks();
-        
         Uint32 diff = frameEnd - frameStart;
         //等待差值时间，保证帧率
         if(diff < m_nFrameTime){
@@ -51,14 +58,9 @@ void Game::run()
 void Game::handleEvents(SDL_Event* pEvent)
 {
     //处理退出事件
-    SDL_Event event;
-    while(SDL_PollEvent(&event))
+    if(pEvent->type == SDL_QUIT)
     {
-        if(event.type == SDL_QUIT)
-        {
-            m_isRunning = false;
-            break;
-        }   
+        m_isRunning = false;
     }
 }
 
@@ -193,8 +195,28 @@ void Game::init()
     SDL_Log("m_farStars.m_nWidth: %d, m_farStars.m_nHeight: %d", m_farStars.m_nWidth, m_farStars.m_nHeight);
     m_farStars.m_fSpeed = 20.0f;
 
+    //初始化字体
+    if(TTF_Init() == -1){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"TTF_Init Error: %s", TTF_GetError());
+        m_isRunning = false;
+        return;
+    }
+
+    m_pTitleFont = TTF_OpenFont("../../assets/font/VonwaonBitmap-16px.ttf", 64);
+    if(m_pTitleFont == nullptr){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"TTF_OpenFont Error: %s", TTF_GetError());
+        m_isRunning = false;
+        return;
+    }
+    m_pTextFont = TTF_OpenFont("../../assets/font/VonwaonBitmap-16px.ttf", 32);
+    if(m_pTextFont == nullptr){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"TTF_OpenFont Error: %s", TTF_GetError());
+        m_isRunning = false;
+        return;
+    }
+
     //切换场景
-    changeScene(new SceneMain());
+    changeScene(new SceneTitle());
 }
 
 void Game::clean()
@@ -219,7 +241,19 @@ void Game::clean()
 
     SDL_DestroyRenderer(m_pRenderer);
     SDL_DestroyWindow(m_pWindow);
-    
+
+    //清理字体
+    if(m_pTitleFont != nullptr){
+        TTF_CloseFont(m_pTitleFont);
+        m_pTitleFont = nullptr;
+    }
+    if(m_pTextFont != nullptr){
+        TTF_CloseFont(m_pTextFont);
+        m_pTextFont = nullptr;
+    }
+    TTF_Quit();
+
+    //清理并退出
     SDL_Quit();
 }
 
@@ -252,4 +286,29 @@ int Game::getWindowHeight()
 void Game::stop()
 {
     m_isRunning = false;
+}
+
+
+void Game::renderText(const std::string& text, float posY, bool isTitle)
+{
+    SDL_Color color = {255, 255, 255, 255};
+    SDL_Surface* pTextSurface = nullptr;
+    if(isTitle){
+        pTextSurface = TTF_RenderUTF8_Solid(m_pTitleFont, text.c_str(), color);
+    }
+    else{
+        pTextSurface = TTF_RenderUTF8_Solid(m_pTextFont, text.c_str(), color);
+    }
+    SDL_Texture* pTextTexture = SDL_CreateTextureFromSurface(m_pRenderer, pTextSurface);
+    if(pTextTexture == nullptr){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"SDL_CreateTextureFromSurface Error: %s", SDL_GetError());
+        return;
+    }
+
+    int y = static_cast<int>((getWindowHeight() - pTextSurface->h) * posY);
+    //SDL_Log("y: %d, windowHeight: %d, pTextSurface->h: %d", y, getWindowHeight(), pTextSurface->h );
+    SDL_Rect dstRect = {static_cast<int>(getWindowWidth() / 2.0f - pTextSurface->w / 2.0f), y, pTextSurface->w, pTextSurface->h};
+    SDL_RenderCopy(m_pRenderer, pTextTexture, nullptr, &dstRect);
+    SDL_DestroyTexture(pTextTexture);
+    SDL_FreeSurface(pTextSurface);
 }
