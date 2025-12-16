@@ -34,7 +34,6 @@ void SceneTitle::clean()
 
 void SceneTitle::update(float deltaTime)
 {
-
 }
 
 void SceneTitle::render()
@@ -49,8 +48,8 @@ void SceneTitle::render()
 
 void SceneTitle::handleEvents(SDL_Event* pEvent)
 {
-    SDL_Log("SceneTitle::handleEvents: %d", pEvent->type);
-    SDL_Log("SceneTitle::handleEvents: %d", pEvent->key.keysym.scancode);
+    //SDL_Log("SceneTitle::handleEvents: %d", pEvent->type);
+    //SDL_Log("SceneTitle::handleEvents: %d", pEvent->key.keysym.scancode);
     if(pEvent->type == SDL_KEYDOWN && pEvent->key.keysym.scancode == SDL_SCANCODE_J){
         m_game.changeScene(new SceneMain());
     }

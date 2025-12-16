@@ -49,7 +49,8 @@ add_executable(${TARGET}
             "src/Game.cpp"
             "src/Scene.cpp"
             "src/SceneMain.cpp"
-            "src/SceneTitle.cpp")
+            "src/SceneTitle.cpp"
+            "src/SceneEnd.cpp")
 
 # 指定需要链接的库
 # target_link_libraries(FlightShooter SDL2 SDL2main)

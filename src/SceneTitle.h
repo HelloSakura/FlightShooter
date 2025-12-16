@@ -23,7 +23,6 @@ public:
     virtual void clean() override;
     virtual void handleEvents(SDL_Event* pEvent) override;
 
-
 private:
     Mix_Music* m_pBgm = nullptr;
 

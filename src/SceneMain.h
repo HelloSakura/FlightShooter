@@ -57,6 +57,7 @@ private://辅助函数
     void dropItem(Enemy* pEnemy);
     void playerPickItem(Item* pItem);
     SDL_FPoint getDirection(Enemy *pEnemy);
+    void changeSceneDelay(float deltaTime);
 
 
 private:
@@ -73,6 +74,8 @@ private:
     SDL_Texture* m_pUIHealth = nullptr;  //血量UI
     TTF_Font* m_pScoreFont = nullptr;  //字体
     int m_nScore = 0;  //分数
+    float m_fTimeEndLimit = 0.0f;  //结束时间限制
+
 
     std::list<PlayerBullet*> m_playerBullets;   //子弹列表，使用指针避免栈上内存过多
     std::list<Enemy*> m_enemies;   //敌人列表，使用指针避免栈上内存过多

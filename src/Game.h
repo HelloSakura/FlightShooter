@@ -46,7 +46,8 @@ public:
     static int getWindowWidth();
     static int getWindowHeight();
     
-
+    void setScore(int score);
+    int getScore() const;
 
 private:
     Game(); //私有化构造函数
@@ -66,6 +67,7 @@ private:
     Background m_farStars;
     TTF_Font* m_pTitleFont = nullptr;
     TTF_Font* m_pTextFont = nullptr;
+    int m_nScore = 0;
 
 private:
     static int sm_nWindowWidth;

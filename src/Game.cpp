@@ -312,3 +312,14 @@ void Game::renderText(const std::string& text, float posY, bool isTitle)
     SDL_DestroyTexture(pTextTexture);
     SDL_FreeSurface(pTextSurface);
 }
+
+
+void Game::setScore(int score)
+{
+    m_nScore = score;
+}
+
+int Game::getScore() const
+{
+    return m_nScore;
+}

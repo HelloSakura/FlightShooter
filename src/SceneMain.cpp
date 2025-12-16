@@ -13,6 +13,7 @@
 #include <cmath>
 #include <algorithm>
 #include "SceneTitle.h"
+#include "SceneEnd.h"
 
 SceneMain::SceneMain() {}
 SceneMain::~SceneMain() {}
@@ -142,6 +143,10 @@ void SceneMain::update(float deltaTime) {
     updatePlayer(deltaTime);
     updateExplosions(deltaTime);
     updateItems(deltaTime);
+
+    if(m_bIsPlayerDead){
+        changeSceneDelay(deltaTime);
+    }
 }
 
 void SceneMain::updatePlayer(float deltaTime) 
@@ -158,6 +163,7 @@ void SceneMain::updatePlayer(float deltaTime)
         explosion->m_fPosition.y = m_player.m_fPosition.y + m_player.m_nHeight / 2.0f - explosion->m_nHeight / 2.0f;
         explosion->m_nStartTime = SDL_GetTicks();
         m_explosions.push_back(explosion);
+        m_game.setScore(m_nScore);
         return;
     }
 
@@ -740,3 +746,15 @@ void SceneMain::playerPickItem(Item *pItem) {
     // 加分
     m_nScore += 5;
 }
+
+
+void SceneMain::changeSceneDelay(float deltaTime)
+{
+    m_fTimeEndLimit += deltaTime;
+    if(m_fTimeEndLimit >= 3.0f){
+        m_game.changeScene(new SceneEnd());
+        m_fTimeEndLimit = 0.0f;
+    }
+}
+
+
