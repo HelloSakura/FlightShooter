@@ -19,7 +19,7 @@ SceneMain::SceneMain() {}
 SceneMain::~SceneMain() {}
 
 void SceneMain::init() {
-    m_player.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "../../assets/image/SpaceShip.png");
+    m_player.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "assets/image/SpaceShip.png");
     if (m_player.m_pTexture == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", IMG_GetError());
         m_game.stop();
@@ -32,7 +32,7 @@ void SceneMain::init() {
     m_player.m_fPosition.x = static_cast<float>(m_game.getWindowWidth()) / 2.0f - static_cast<float>(m_player.m_nWidth) / 2.0f;
 
     // 初始化子弹模板
-    m_playerBulletTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "../../assets/image/laser-3.png");
+    m_playerBulletTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "assets/image/laser-3.png");
     if (m_playerBulletTemplate.m_pTexture == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", IMG_GetError());
         m_game.stop();
@@ -43,7 +43,7 @@ void SceneMain::init() {
     m_playerBulletTemplate.m_nHeight /= 4;
 
     // 初始化敌人模板
-    m_enemyTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "../../assets/image/insect-1.png");
+    m_enemyTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "assets/image/insect-1.png");
     if (m_enemyTemplate.m_pTexture == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", IMG_GetError());
         m_game.stop();
@@ -54,7 +54,7 @@ void SceneMain::init() {
     m_enemyTemplate.m_nHeight /= 4;
 
     // 初始化敌人子弹模板
-    m_enemyBulletTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "../../assets/image/laser-2.png");
+    m_enemyBulletTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "assets/image/laser-2.png");
     if (m_enemyBulletTemplate.m_pTexture == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", IMG_GetError());
         m_game.stop();
@@ -65,7 +65,7 @@ void SceneMain::init() {
     m_enemyBulletTemplate.m_nHeight /= 4;
 
     // 初始化爆炸模板
-    m_explosionTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "../../assets/effect/explosion.png");
+    m_explosionTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "assets/effect/explosion.png");
     if (m_explosionTemplate.m_pTexture == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", IMG_GetError());
         m_game.stop();
@@ -76,7 +76,7 @@ void SceneMain::init() {
     m_explosionTemplate.m_nWidth = m_explosionTemplate.m_nHeight;
 
     // 初始化道具模板
-    m_itemTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "../../assets/image/bonus_life.png");
+    m_itemTemplate.m_pTexture = IMG_LoadTexture(m_game.getRenderer(), "assets/image/bonus_life.png");
     if (m_itemTemplate.m_pTexture == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", IMG_GetError());
         m_game.stop();
@@ -88,7 +88,7 @@ void SceneMain::init() {
     m_itemTemplate.m_eType = HEALTH;
 
     // 初始化血量UI
-    m_pUIHealth = IMG_LoadTexture(m_game.getRenderer(), "../../assets/image/health.png");
+    m_pUIHealth = IMG_LoadTexture(m_game.getRenderer(), "assets/image/health.png");
     if (m_pUIHealth == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", IMG_GetError());
         m_game.stop();
@@ -102,7 +102,7 @@ void SceneMain::init() {
     m_randomDistribution = std::uniform_real_distribution<float>(0.0f, 1.0f);
 
     // 初始化背景音乐
-    m_pBgm = Mix_LoadMUS("../../assets/music/03_Racing_Through_Asteroids_Loop.ogg");
+    m_pBgm = Mix_LoadMUS("assets/music/03_Racing_Through_Asteroids_Loop.ogg");
     if (m_pBgm == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load music: %s", Mix_GetError());
         m_game.stop();
@@ -112,11 +112,11 @@ void SceneMain::init() {
     Mix_PlayMusic(m_pBgm, -1);
 
     // 初始化音效
-    m_soundEffects["player_shoot"] = Mix_LoadWAV("../../assets/sound/laser_shoot4.wav");
-    m_soundEffects["enemy_shoot"] = Mix_LoadWAV("../../assets/sound/xs_laser.wav");
-    m_soundEffects["enemy_hit"] = Mix_LoadWAV("../../assets/sound/explosion3.wav");
-    m_soundEffects["player_hit"] = Mix_LoadWAV("../../assets/sound/explosion1.wav");
-    m_soundEffects["item_pick"] = Mix_LoadWAV("../../assets/sound/eff5.wav");
+    m_soundEffects["player_shoot"] = Mix_LoadWAV("assets/sound/laser_shoot4.wav");
+    m_soundEffects["enemy_shoot"] = Mix_LoadWAV("assets/sound/xs_laser.wav");
+    m_soundEffects["enemy_hit"] = Mix_LoadWAV("assets/sound/explosion3.wav");
+    m_soundEffects["player_hit"] = Mix_LoadWAV("assets/sound/explosion1.wav");
+    m_soundEffects["item_pick"] = Mix_LoadWAV("assets/sound/eff5.wav");
 
     //初始化SDL_ttf
     if(TTF_Init() == -1){
@@ -126,7 +126,7 @@ void SceneMain::init() {
     }
 
     //加载字体
-    m_pScoreFont = TTF_OpenFont("../../assets/font/VonwaonBitmap-12px.ttf", 24);
+    m_pScoreFont = TTF_OpenFont("assets/font/VonwaonBitmap-12px.ttf", 24);
     if(m_pScoreFont == nullptr){
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load font: %s", TTF_GetError());
         m_game.stop();

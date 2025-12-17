@@ -59,3 +59,11 @@ target_link_libraries(${TARGET}
                         SDL2_image::SDL2_image
                         SDL2_mixer::SDL2_mixer
                         SDL2_ttf::SDL2_ttf)
+
+# 复制资源文件到输出目录（根据配置自动选择目标目录）
+add_custom_command(TARGET ${TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/assets"
+    "$<TARGET_FILE_DIR:${TARGET}>/assets"
+    COMMENT "Copying assets to output directory"
+)

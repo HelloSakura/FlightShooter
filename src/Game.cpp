@@ -8,6 +8,7 @@
 #include <SDL_mixer.h>
 #include "SceneMain.h"
 #include "SceneTitle.h"
+#include <fstream>
 
 int Game::sm_nWindowWidth = 600;
 int Game::sm_nWindowHeight = 800;
@@ -177,7 +178,7 @@ void Game::init()
     Mix_Volume(-1, MIX_MAX_VOLUME / 8);
 
     //初始化背景卷轴
-    m_nearStars.m_pTexture = IMG_LoadTexture(m_pRenderer, "../../assets/image/StarsA.png");
+    m_nearStars.m_pTexture = IMG_LoadTexture(m_pRenderer, "assets/image/StarsA.png");
     if(m_nearStars.m_pTexture == nullptr){
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,"IMG_LoadTexture Error: %s", IMG_GetError());
         m_isRunning = false;
@@ -186,7 +187,7 @@ void Game::init()
     SDL_QueryTexture(m_nearStars.m_pTexture, nullptr, nullptr, &m_nearStars.m_nWidth, &m_nearStars.m_nHeight);
     SDL_Log("m_nearStars.m_nWidth: %d, m_nearStars.m_nHeight: %d", m_nearStars.m_nWidth, m_nearStars.m_nHeight);
 
-    m_farStars.m_pTexture = IMG_LoadTexture(m_pRenderer, "../../assets/image/StarsB.png");
+    m_farStars.m_pTexture = IMG_LoadTexture(m_pRenderer, "assets/image/StarsB.png");
     if(m_farStars.m_pTexture == nullptr){
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,"IMG_LoadTexture Error: %s", IMG_GetError());
         m_isRunning = false;
@@ -203,18 +204,21 @@ void Game::init()
         return;
     }
 
-    m_pTitleFont = TTF_OpenFont("../../assets/font/VonwaonBitmap-16px.ttf", 64);
+    m_pTitleFont = TTF_OpenFont("assets/font/VonwaonBitmap-16px.ttf", 64);
     if(m_pTitleFont == nullptr){
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,"TTF_OpenFont Error: %s", TTF_GetError());
         m_isRunning = false;
         return;
     }
-    m_pTextFont = TTF_OpenFont("../../assets/font/VonwaonBitmap-16px.ttf", 32);
+    m_pTextFont = TTF_OpenFont("assets/font/VonwaonBitmap-16px.ttf", 32);
     if(m_pTextFont == nullptr){
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,"TTF_OpenFont Error: %s", TTF_GetError());
         m_isRunning = false;
         return;
     }
+
+    //加载排位榜数据
+    loadData();
 
     //切换场景
     changeScene(new SceneTitle());
@@ -316,7 +320,7 @@ SDL_Point Game::renderTextCenter(const std::string& text, float posY, bool isTit
     return {dstRect.x + dstRect.w, y};
 }
 
-void Game::renderTextPos(const std::string& text, int posX, int posY, bool isTitle)
+void Game::renderTextPos(const std::string& text, int posX, int posY, bool isTitle, bool isLeft)
 {
     SDL_Color color = {255, 255, 255, 255};
     SDL_Surface* pTextSurface = nullptr;
@@ -331,7 +335,16 @@ void Game::renderTextPos(const std::string& text, int posX, int posY, bool isTit
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,"SDL_CreateTextureFromSurface Error: %s", SDL_GetError());
         return;
     }
-    SDL_Rect dstRect = {posX, posY, pTextSurface->w, pTextSurface->h};
+
+    SDL_Rect dstRect;
+    if(isLeft){
+        dstRect = {posX, posY, pTextSurface->w, pTextSurface->h};
+    }
+    else{
+        int windowWidth = getWindowWidth();
+        dstRect = {windowWidth - posX - pTextSurface->w, posY, pTextSurface->w, pTextSurface->h};
+    }
+
     SDL_RenderCopy(m_pRenderer, pTextTexture, nullptr, &dstRect);
     SDL_DestroyTexture(pTextTexture);
     SDL_FreeSurface(pTextSurface);
@@ -346,4 +359,49 @@ void Game::setScore(int score)
 int Game::getScore() const
 {
     return m_nScore;
+}
+
+
+void Game::addToRankList(const std::string& name, int score)
+{
+    m_mRankList.insert(std::make_pair(score, name));
+    if(m_mRankList.size() > 8){
+        m_mRankList.erase(std::prev(m_mRankList.end()));
+    }
+}
+
+
+std::multimap<int, std::string, std::greater<int>>& Game::getRankList()
+{
+    return m_mRankList;
+}
+
+
+void Game::loadData()
+{
+    std::ifstream in("assets/data/rank.dat");
+    if(!in.is_open()){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"loadData Error: %s", SDL_GetError());
+        return;
+    }
+    int score;
+    std::string name;
+    while(in >> score >> name){
+        m_mRankList.insert(std::make_pair(score, name));
+    }
+    in.close();
+}
+
+
+void Game::saveData()
+{
+    std::ofstream out("assets/data/rank.dat");
+    if(!out.is_open()){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"saveData Error: %s", SDL_GetError());
+        return;
+    }
+    for(auto& pair : m_mRankList){
+        out << pair.first << " " << pair.second << std::endl;
+    }
+    out.close();
 }

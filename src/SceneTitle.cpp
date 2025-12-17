@@ -15,7 +15,7 @@ SceneTitle::~SceneTitle()
 
 void SceneTitle::init()
 {
-    m_pBgm = Mix_LoadMUS("../../assets/music/06_Battle_in_Space_Intro.ogg");
+    m_pBgm = Mix_LoadMUS("assets/music/06_Battle_in_Space_Intro.ogg");
     if(m_pBgm == nullptr){
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,"Mix_LoadMUS Error: %s", Mix_GetError());
         return;

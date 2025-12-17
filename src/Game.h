@@ -13,7 +13,9 @@
 #include <SDL_events.h>
 #include <SDL_image.h>
 #include<SDL_ttf.h>
+#include <map>
 #include <string>
+
 
 class Game{
 public:
@@ -41,7 +43,7 @@ public:
 
     //渲染工具函数
     SDL_Point renderTextCenter(const std::string& text, float posY, bool isTitle);
-    void renderTextPos(const std::string& text, int posX, int posY, bool isTitle);
+    void renderTextPos(const std::string& text, int posX, int posY, bool isTitle, bool isLeft = true);
 
 
     static int getWindowWidth();
@@ -49,6 +51,11 @@ public:
     
     void setScore(int score);
     int getScore() const;
+
+    void addToRankList(const std::string& name, int score);
+    std::multimap<int, std::string, std::greater<int>>& getRankList();
+    void loadData();
+    void saveData();
 
 private:
     Game(); //私有化构造函数
@@ -69,6 +76,9 @@ private:
     TTF_Font* m_pTitleFont = nullptr;
     TTF_Font* m_pTextFont = nullptr;
     int m_nScore = 0;
+
+    //排位榜记录存储
+    std::multimap<int, std::string, std::greater<int>> m_mRankList;
 
 private:
     static int sm_nWindowWidth;

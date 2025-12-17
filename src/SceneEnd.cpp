@@ -57,6 +57,8 @@ void SceneEnd::handleEvents(SDL_Event* pEvent)
             SDL_Log("SceneEnd::handleEvents: keydown scancode: %d", pEvent->key.keysym.scancode);
             if(pEvent->key.keysym.scancode == SDL_SCANCODE_RETURN){
                 m_bIsTyping = false;
+                m_game.addToRankList(m_strName, m_game.getScore());
+                m_game.saveData();
             }
             if(pEvent->key.keysym.scancode == SDL_SCANCODE_BACKSPACE){
                 if(!m_strName.empty()){
@@ -77,6 +79,7 @@ void SceneEnd::handleEvents(SDL_Event* pEvent)
         }
         //处理记录页面
         SDL_Log("SceneEnd::handleEvents: record");
+        renderRecordPage();
         if(pEvent->type == SDL_KEYDOWN){
             if(pEvent->key.keysym.scancode == SDL_SCANCODE_R){
                 m_game.changeScene(new SceneTitle());
@@ -110,7 +113,18 @@ void SceneEnd::renderInputPage()
 
 void SceneEnd::renderRecordPage()
 {
-
+    m_game.renderTextCenter("Rank List", 0.1f, true);
+    int i = 0;
+    int posX = 60;
+    int posY = m_game.getWindowHeight() * 0.2f;
+    int offsetY = 40;
+    for(auto& pair : m_game.getRankList()){
+        std::string prefix = std::to_string(i + 1) + ". ";
+        std::string text = prefix + pair.second;
+        m_game.renderTextPos(text, posX, posY + offsetY * i, false);
+        m_game.renderTextPos(std::to_string(pair.first), posX, posY + offsetY * i, false, false);
+        i++;
+    }
 }
 
 void SceneEnd::removeLastUTF8Char(std::string& str)
