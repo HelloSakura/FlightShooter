@@ -40,7 +40,8 @@ public:
     bool isRunning() const;
 
     //渲染工具函数
-    void renderText(const std::string& text, float posY, bool isTitle);
+    SDL_Point renderTextCenter(const std::string& text, float posY, bool isTitle);
+    void renderTextPos(const std::string& text, int posX, int posY, bool isTitle);
 
 
     static int getWindowWidth();

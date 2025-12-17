@@ -39,9 +39,9 @@ void SceneTitle::update(float deltaTime)
 void SceneTitle::render()
 {
     //渲染标题文字
-    m_game.renderText("FlightShooter", 0.4f, true);
+    m_game.renderTextCenter("FlightShooter", 0.4f, true);
     //渲染文本文字
-    m_game.renderText("Press J to Start", 0.7f, false);
+    m_game.renderTextCenter("Press J to Start", 0.7f, false);
 }
 
 

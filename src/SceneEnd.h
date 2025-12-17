@@ -25,8 +25,11 @@ private:
     void renderInputPage();
     void renderRecordPage();
     void removeLastUTF8Char(std::string& str);
+    void updateBlinkTimer(float deltaTime);
 
 private:
     std::string m_strName;
     bool m_bIsTyping = true;
+    float m_fBlinkTimer = 0.0f;
+    bool m_bIsBlinking = true;
 };

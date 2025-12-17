@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "SDL_log.h" 
 #include <SDL.h>
+#include <SDL_rect.h>
 #include <SDL_stdinc.h>
 #include "SDL_image.h"
 #include <SDL_ttf.h>
@@ -289,7 +290,33 @@ void Game::stop()
 }
 
 
-void Game::renderText(const std::string& text, float posY, bool isTitle)
+SDL_Point Game::renderTextCenter(const std::string& text, float posY, bool isTitle)
+{
+    SDL_Color color = {255, 255, 255, 255};
+    SDL_Surface* pTextSurface = nullptr;
+    if(isTitle){
+        pTextSurface = TTF_RenderUTF8_Solid(m_pTitleFont, text.c_str(), color);
+    }
+    else{
+        pTextSurface = TTF_RenderUTF8_Solid(m_pTextFont, text.c_str(), color);
+    }
+    SDL_Texture* pTextTexture = SDL_CreateTextureFromSurface(m_pRenderer, pTextSurface);
+    if(pTextTexture == nullptr){
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,"SDL_CreateTextureFromSurface Error: %s", SDL_GetError());
+        return {0, 0};
+    }
+
+    int y = static_cast<int>((getWindowHeight() - pTextSurface->h) * posY);
+    //SDL_Log("y: %d, windowHeight: %d, pTextSurface->h: %d", y, getWindowHeight(), pTextSurface->h );
+    SDL_Rect dstRect = {static_cast<int>(getWindowWidth() / 2.0f - pTextSurface->w / 2.0f), y, pTextSurface->w, pTextSurface->h};
+    SDL_RenderCopy(m_pRenderer, pTextTexture, nullptr, &dstRect);
+    SDL_DestroyTexture(pTextTexture);
+    SDL_FreeSurface(pTextSurface);
+    //返回文字右下角坐标
+    return {dstRect.x + dstRect.w, y};
+}
+
+void Game::renderTextPos(const std::string& text, int posX, int posY, bool isTitle)
 {
     SDL_Color color = {255, 255, 255, 255};
     SDL_Surface* pTextSurface = nullptr;
@@ -304,10 +331,7 @@ void Game::renderText(const std::string& text, float posY, bool isTitle)
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,"SDL_CreateTextureFromSurface Error: %s", SDL_GetError());
         return;
     }
-
-    int y = static_cast<int>((getWindowHeight() - pTextSurface->h) * posY);
-    //SDL_Log("y: %d, windowHeight: %d, pTextSurface->h: %d", y, getWindowHeight(), pTextSurface->h );
-    SDL_Rect dstRect = {static_cast<int>(getWindowWidth() / 2.0f - pTextSurface->w / 2.0f), y, pTextSurface->w, pTextSurface->h};
+    SDL_Rect dstRect = {posX, posY, pTextSurface->w, pTextSurface->h};
     SDL_RenderCopy(m_pRenderer, pTextTexture, nullptr, &dstRect);
     SDL_DestroyTexture(pTextTexture);
     SDL_FreeSurface(pTextSurface);
